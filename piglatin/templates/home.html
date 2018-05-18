@@ -1,0 +1,10 @@
+<h1>Pig Latin Translator!</h1>
+
+<!--name="originaltext" points to text in textbox and is sent over to the translate.html -->
+<form action="{% url 'translate' %}">
+    <input type="text" name="originaltext" /><br />
+    <input type="submit" value="Translate!" />
+</form>
+
+<br />
+<a href="{% url 'about' %}">ABOUT</a>
