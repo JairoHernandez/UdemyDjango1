@@ -1,0 +1,501 @@
+-Create virtualenv
+
+jairomh@DEV2:~/WORK/django/UltimateBeginner1.11$ virtualenv --python=python3.6 venv36
+Running virtualenv with interpreter /usr/bin/python3.6
+Using base prefix '/usr'
+New python executable in /home/jairomh/WORK/django/UltimateBeginner1.11/venv36/bin/python3.6
+Also creating executable in /home/jairomh/WORK/django/UltimateBeginner1.11/venv36/bin/python
+Installing setuptools, pip, wheel...done.
+
+-Activate virtualenv
+
+jairomh@DEV2:~/WORK/django/UltimateBeginner1.11$ source venv36/bin/activate
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11$ python
+Python 3.6.5 (default, Mar 29 2018, 03:28:50) 
+[GCC 5.4.0 20160609] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> 
+
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11$ pip3 -V
+pip 10.0.1 from /home/jairomh/WORK/django/UltimateBeginner1.11/venv36/lib/python3.6/site-packages/pip (python 3.6)
+
+-Install django(DO NOT USE sudo because it will install it outside venv)
+
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11$ pip3 -V
+pip 10.0.1 from /home/jairomh/WORK/django/UltimateBeginner1.11/venv36/lib/python3.6/site-packages/pip (python 3.6)
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11$ sudo pip3 install django==1.11.10
+The directory '/home/jairomh/.cache/pip/http' or its parent directory is not owned by the current user and the cache has been disabled. Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
+The directory '/home/jairomh/.cache/pip' or its parent directory is not owned by the current user and caching wheels has been disabled. check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
+Collecting django==1.11.10
+  Downloading https://files.pythonhosted.org/packages/32/44/a9afb2b7dd641d89341a2126020bbda9201d270e23e4ffe2601eeaaabcfd/Django-1.11.10-py2.py3-none-any.whl (6.9MB)
+    100% |████████████████████████████████| 7.0MB 1.4MB/s 
+Requirement already satisfied: pytz in /usr/lib/python3/dist-packages (from django==1.11.10) (2014.10)
+python-swiftclient 3.0.0 requires futures>=2.1.3, which is not installed.
+Installing collected packages: django
+Successfully installed django-1.11.10
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11$ 
+
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11$ python3
+Python 3.6.5 (default, Mar 29 2018, 03:28:50) 
+[GCC 5.4.0 20160609] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import django
+>>> print(django_getverion())
+>>> print(django.get_version())
+1.11.10
+
+========Site #1 - Pig Latin Translator========
+===Creating a Project===
+
+Create project and run server.
+
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11$ django-admin startproject piglatin
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11$ cd piglati
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/piglatin$ ls -l
+total 8
+-rwxrwxr-x 1 jairomh jairomh  806 May 10 16:38 manage.py
+drwxrwxr-x 2 jairomh jairomh 4096 May 10 16:38 piglatin
+
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11$ cd piglatin/
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/piglatin$ ls
+manage.py  piglatin
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/piglatin$ ls -l
+total 8
+-rwxrwxr-x 1 jairomh jairomh  806 May 10 16:38 manage.py
+drwxrwxr-x 2 jairomh jairomh 4096 May 10 16:38 piglatin
+
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/piglatin$ python manage.py runserver
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 13 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+
+May 10, 2018 - 21:40:13
+Django version 1.11.10, using settings 'piglatin.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+===URLS===
+
+Only returns text.
+
+  views.py 
+    return HttpResponse("Hello World!")
+
+===HTML and Django===
+
+To serve up a HTML web page(s) versus only returning text like previous section create 
+piglatin/templates/home.html as your webpage then add in the folder 'templates'
+to 'DIRS' key in settings.py.
+
+  piglatin/piglatin/settings.py
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': ['templates'],
+
+
+then in views.py add this
+
+  views.py  
+    from django.shortcuts import render
+
+===Sending data===
+
+http://127.0.0.1:8000/translate/
+
+views.py
+  def translate(request):
+    return HttpResponse("You're on the translate page.")
+  
+urls.py
+  url(r'^translate/', views.translate)
+
+Changed def hello() to def home() and in urls.py a true home page doesnt need 
+
+   url(r'^home/', views.home)
+
+so instead just clear out the URL with ^$ lik so
+
+   url(r'^$', views.home)
+
+To make the form send you to the translate page after clicking button
+
+  home.html
+    <form action="{% url 'translate' %}">
+
+where {% url 'translate' %} lines up with name='translate' in urls.py.
+
+Also, back in home.html for the form to provide access to the data submitted user
+name inside <input > tag with given value of "originaltext".
+
+  home.html
+    <!--name="originaltext" points to text in textbox and is sent over to the translate.html -->
+    <input type="text" name="originaltext" /><br />
+
+    def translate(request):
+      return HttpResponse("You're on the translate page " + request.GET['originaltext'])
+
+===Pig Latin Translation===
+
+
+========Site #2 - Personal Blog========
+
+Confession in the first project there was no app created, but we will create one here...blog app.
+
+===Apps - What They Are and Creating Our First===
+
+Use plural name for your apps.
+
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/jairosblog$ python manage.py startapp posts
+This wil also create a folder called 'posts' adjacent to manage.py under project folder 'jairosblog'.
+
+  (venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/jairosblog$ tree posts
+  posts
+  ├── admin.py
+  ├── apps.py
+  ├── __init__.py
+  ├── migrations
+  │   └── __init__.py
+  ├── models.py <-- WILL USE THIS
+  ├── tests.py
+  └── views.py <-- WILL USE THIS
+
+===App Views===
+
+It's best to create your templates inside the app folder 'posts'.
+Name it 'templates' so that everything just works since this is how settings.py has it  defined.
+
+Inside folder 'templates' make another folder with name of the app...in this case 'posts'.
+This way Django never get's confused as to what templates from what app in case you have multi apps.
+
+One last thing is that you go into settings.py to say we've added new app into project
+
+jairosblog/jairosblog/settings.py
+  INSTALLED_APPS = [
+      'django.contrib.admin',
+      'django.contrib.auth',
+      'django.contrib.contenttypes',
+      'django.contrib.sessions',
+      'django.contrib.messages',
+      'django.contrib.staticfiles',
+      'posts', <-- ADD APP 'posts' TO END.
+  ]
+
+===Models===
+
+Use singular names for your model classes.
+
+  /home/jairomh/WORK/django/UltimateBeginner1.11/jairosblog/posts/models.py
+    # Create your models here.
+    class Post(models.Model):
+        title = models.CharField(max_length=250)
+        pub_date = models.DateTimeField()
+        image = models.ImageField(upload_to='media/')
+        body = models.TextField()
+
+Now you need apply your migrations.
+This will also get rid of this message:
+
+  "You have 13 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+  Run 'python manage.py migrate' to apply them."
+
+  (venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/jairosblog$ python manage.py migrate
+  Operations to perform:
+    Apply all migrations: admin, auth, contenttypes, sessions
+  Running migrations:
+    Applying contenttypes.0001_initial... OK
+    Applying auth.0001_initial... OK
+    Applying admin.0001_initial... OK
+    Applying admin.0002_logentry_remove_auto_add... OK
+    Applying contenttypes.0002_remove_content_type_name... OK
+    Applying auth.0002_alter_permission_name_max_length... OK
+    Applying auth.0003_alter_user_email_max_length... OK
+    Applying auth.0004_alter_user_username_opts... OK
+    Applying auth.0005_alter_user_last_login_null... OK
+    Applying auth.0006_require_contenttypes_0002... OK
+    Applying auth.0007_alter_validators_add_error_messages... OK
+    Applying auth.0008_alter_user_username_max_length... OK
+    Applying sessions.0001_initial... OK
+
+
+Due to dealing with images makemigrations will fail with a Pillow error.
+Install pillow to resolve it.
+
+  (venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/jairosblog$ python manage.py makemigrations
+  SystemCheckError: System check identified some issues:
+
+  ERRORS:
+  posts.Post.image: (fields.E210) Cannot use ImageField because Pillow is not installed.
+          HINT: Get Pillow at https://pypi.python.org/pypi/Pillow or run command "pip install Pillow".
+  (venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/jairosblog$ pip3 install Pillow
+  Collecting Pillow
+    Downloading https://files.pythonhosted.org/packages/5f/4b/8b54ab9d37b93998c81b364557dff9f61972c0f650efa0ceaf470b392740/Pillow-5.1.0-cp36-cp36m-manylinux1_x86_64.whl (2.0MB)
+      100% |████████████████████████████████| 2.0MB 2.1MB/s
+  Installing collected packages: Pillow
+  Successfully installed Pillow-5.1.0
+
+Now you can try python manage.py makemigrations again.
+
+  (venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/jairosblog$ python manage.py makemigrations
+  Migrations for 'posts':
+    posts/migrations/0001_initial.py
+      - Create model Post
+
+FINALLY, To create models in database(one more time):
+
+  (venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/jairosblog$ python manage.py migrate
+  Operations to perform:
+    Apply all migrations: admin, auth, contenttypes, posts, sessions
+  Running migrations:
+    Applying posts.0001_initial... OK
+
+It will create 0001_initial.py for us with this in there.
+
+  jairosblog/posts/migrations/0001_initial.py
+    class Migration(migrations.Migration):
+
+      initial = True
+
+      dependencies = [
+      ]
+
+      operations = [
+          migrations.CreateModel(
+              name='Post',
+              fields=[
+                  ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                  ('title', models.CharField(max_length=250)),
+                  ('pub_date', models.DateTimeField()),
+                  ('image', models.ImageField(upload_to='media/')),
+                  ('body', models.TextField()),
+              ],
+          ),
+      ]
+  
+If you tweak your models.py(say increase max_length for CharField) you will have to:
+
+  1) Create migrations again.
+    $ python manage.py makemigrations
+  2) Apply them to DB.
+    $ python manage.py migrate
+
+  It will create a second py file under 'migrations' folder -->  jairosblog/posts/migrations/0002_auto_20180516_2227.py
+
+===Admin===
+
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/jairosblog$ python manage.py createsuperuser
+Username (leave blank to use 'jairomh'): admin
+Email address: admin@admin.org
+Password: 
+Password (again):
+Superuser created successfully.
+
+Now for your model to list in the admin page add this.
+
+  jairosblog/posts/admin.py
+    from django.contrib import admin
+    +from .models import Post
+
+    # Register your models here.
+    +admin.site.register(Post)
+
+In the admin page the posts will list as 'Post object' which is an annoying naming convention.
+To make it better do this.
+
+  jairosblog/posts/models.py
+    def __str__(self):
+            return self.title # Gives better name to posts listed in admin page.
+
+SECURITY TIP AGAINST HACKERS!!
+  
+  Change url(r'^admin/', admin.site.urls) to say url(r'^aiajopajieion/', admin.site.urls)
+  It's still hackable if someone get's on your computer and sees your weburl history.
+  Best security is to create a complex password with createsuperuser.
+
+===Displaying Posts===
+
+  jairosblog/posts/views.py
+    from django.shortcuts import render
+    +from .models import Post
+
+    # Create your views here.
+    def home(request):
+
+        +posts = Post.objects.order_by('pub_date')
+        +return render(request, 'posts/home.html', {'posts': posts})
+  
+  posts/templates/posts/home.html
+    <h1>Welcome to Jairo's Blog!</h1>
+
+    <h2>Latest Posts</h2>
+
+    {% for post in posts.all %}
+        
+        {{ post.title }}
+
+    {% endfor %}
+
+===Model Methods===
+
+Get the title, text, and publication data to show up on our webpage.
+
+  posts/templates/posts/home.html
+    {% for post in posts.all %}
+        
+    {{ post.title }}
+    <br />
+    {{ post.pub_date_pretty }}
+    <br />
+    <img src="{{ post.image.url }}" />
+    <br />
+    {{ post.summary }}
+    <br /><br />
+
+    {% endfor %}
+
+====Working With Images===
+
+  jairosblog/jairosblog/urls.py
+    +from django.conf.urls.static import static
+    +from django.conf import settings
+
+    +] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+  jairosblog/jairosblog/settings.py
+    +MEDIA_URL = '/pics/'
+    +MEDIA_ROOT = BASE_DIR
+
+Submitted pics per blog post via the Django Admin page when creating a post.
+
+===Post Details===
+
+Go to URL 'post_detail' and pass its id when someone clicks on the link
+
+  posts/templates/posts/home.html
+    <a href="{% url 'post_detail' post.id %}">
+
+URL 'post_detail' is referenced in urls.py
+
+  jairosblog/jairosblog/urls.py
+    url(r'^posts/(?P<post_id>[0-9]+)/$', views.post_detail, name='post_detail')
+
+===Bootstrap and Design===
+
+Get basic template from version v3.3.7 getbootstrap.com.
+With the version I have only just replace the line under <!-- Bootstrap CSS -->
+with <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+it's find in the Bootstrap CDN section on getbootstrap.com.
+
+===Adding a NavBar===
+
+Click 'Components' on getbootstrap.com.
+<a> is required for <li> items else this will look very messed up.
+
+  posts/templates/posts/home.html
+    <li><a>About</a></li>
+
+  you can change 
+
+  <nav class="navbar navbar-default">
+  to 
+  <nav class="navbar navbar-inverse">
+
+===Home Page Design===
+===Static Images===
+
+An image that is not connected to the SQL db and is just simply there is a static image.
+Create folder 'static/posts' under 'posts' and this to home page.
+
+  posts/templates/posts/home.html
+    {% load static %}
+            <img src="{% static 'posts/home.jpg' %}" class="img-responsive center-block" style="max-height:400px;" />
+
+===Cleanup===
+===DISQUS===
+
+https://disqus.com/
+DISQUS is a widget to allow commenting on all the posts.
+
+
+========Publishing a Website on a VPS (Virtual Private Server)========
+===Intro===
+===Vultr===
+
+Setup your virtual server.
+  www.vultr.com
+  Pick 'Vultr Cloud Compute(VC2)' which is cheap. 'Dedicated Instance' costs a lot more.
+
+===Security on Your Server===
+
+1. Log into virtual server at www.vultr.com.
+  # ssh root@[publicIP]
+
+2. Create a new user to use so that you no longer expose the root user.
+
+  First change the root passwd.
+
+  root@jairosblog:~# passwd
+  New password: 
+  Retype new password: 
+  passwd: password updated successfully
+
+  Create django user and give it sudo privileges
+
+  root@jairosblog:~# adduser django
+  Adding user `django' ...
+  Adding new group `django' (1000) ...
+  Adding new user `django' (1000) with group `django' ...
+  Creating home directory `/home/django' ...
+  Copying files from `/etc/skel' ...
+  New password: 
+  Retype new password: 
+  passwd: password updated successfully
+  Changing the user information for django
+  Enter the new value, or press ENTER for the default
+    Full Name []: 
+    Room Number []: 
+    Work Phone []: 
+    Home Phone []: 
+    Other []: 
+  Is the information correct? [Y/n] Y
+  root@jairosblog:~# usermod -aG sudo django
+
+3. Remove login privileges for root by setting PermitRootLogin to 'no'.
+
+  root@jairosblog:~# grep PermitRootLogin /etc/ssh/sshd_config 
+  PermitRootLogin no
+  root@jairosblog:~# systemctl reload sshd
+
+4. Setup firewall with django user.
+
+  django@jairosblog:~$ sudo ufw app list
+  [sudo] password for django: 
+  Available applications:
+    OpenSSH
+  django@jairosblog:~$ sudo ufw allow OpenSSH
+  Rules updated
+  Rules updated (v6)
+  django@jairosblog:~$ sudo ufw enable
+  Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
+  Firewall is active and enabled on system startup
+  django@jairosblog:~$ sudo ufw status
+  Status: active
+
+  To                         Action      From
+  --                         ------      ----
+  OpenSSH                    ALLOW       Anywhere                  
+  OpenSSH (v6)               ALLOW       Anywhere (v6)     
+
+===Pip and virtualenv===
+
+
+
+
+
+
+
+
