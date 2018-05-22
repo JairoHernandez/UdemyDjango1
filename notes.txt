@@ -515,7 +515,7 @@ django@jairosblog:~$ sudo pip3 install virtualenv
 
 ===Uploading Our Code===
 
-- sftp with filezilla or scp over folder 'jairoblog' to vult virutla server /home/django.
+- sftp with filezilla or scp over folder 'jairosblog' to vult virutla server /home/django.
 - Create virtual environment on vult server.
 
   django@jairosblog:~/jairosblog$ virtualenv venv
@@ -546,7 +546,7 @@ You will see this error, which is a good thing and means you actually hitting th
 
 ===Gunicorn===
 
-If you kill the django service on your vultr virtual server you lose connection so one has to keep the terminal
+1. If you kill the django service on your vultr virtual server you lose connection so one has to keep the terminal
 running the django service open and up the whole time, which is very impractical. Solution is to use gunicorn.
 
   (venv) django@jairosblog:~/jairosblog$ pip3 install gunicorn
@@ -572,6 +572,188 @@ running the django service open and up the whole time, which is very impractical
   [2018-05-21 22:18:28 +0000] [18739] [INFO] Shutting down: Master
   (venv) django@jairosblog:~/jairosblog$ deactivate
 
-  4:16
+Now configure gunicorn permanently.
+
+  django@jairosblog:~/jairosblog$ sudo nano /etc/systemd/system/gunicorn.service
+
+    [Unit]
+    Description=gunicorn daemon
+    After=network.target
+
+    [Service]
+    User=django
+    Group=www-data
+    WorkingDirectory=/home/django/jairosblog
+    ExecStart=/home/django/jairosblog/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/django/jairosblog/jairosblog.sock jairosblog.wsgi:application
+
+    [Install]
+    WantedBy=multi-user.target
+
+django@jairosblog:~/jairosblog$ sudo systemctl start gunicorn
+django@jairosblog:~/jairosblog$ sudo systemctl enable gunicorn
+Created symlink from /etc/systemd/system/multi-user.target.wants/gunicorn.service to /etc/systemd/system/gunicorn.service.
+
+===Nginx===
+
+  django@jairosblog:~/jairosblog$ sudo nano /etc/nginx/sites-available/jairosblog
+    server {
+        listen 80;
+        server_name 45.76.238.14;
+
+        location = /favicon.ico { access_log off; log_not_found off; }
+        location /static/ {
+            root /home/django/jairosblog;
+        }
+
+        location / {
+            include proxy_params;
+            proxy_pass http://unix:/home/django/jairosblog/jairosblog.sock;
+        }
+    }
+
+  django@jairosblog:~/jairosblog$ sudo ln -s /etc/nginx/sites-available/jairosblog /etc/nginx/sites-enabled
+
+Test your Nginx configuration for syntax errors by typing:
+
+  django@jairosblog:~/jairosblog$ sudo nginx -t
+  [sudo] password for django: 
+  nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+  nginx: configuration file /etc/nginx/nginx.conf test is successful
+  django@jairosblog:~/jairosblog$ sudo systemctl restart nginx
+
+Finally, we need to open up our firewall to normal traffic on port 80. Since we no longer need access to the development server, we can remove the rule to open port 8000 as well:
+
+  django@jairosblog:~/jairosblog$ sudo ufw delete allow 8000;   sudo ufw delete allow 8000
+  Rule deleted
+  Rule deleted (v6)
+  django@jairosblog:~/jairosblog$ sudo ufw allow 'Nginx Full'
+  Rule added
+  Rule added (v6)
+
+Test to make sure web browser can load page without use of port 8080 --> http://45.76.238.14/
+
+2. It's still not loading the static picture though so add STATIC_ROOT entry.
+
+  jairosblog/jairosblog/settings.py
+
+    STATIC_URL = '/static/'
+    +STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+  Do the same on vulr virtual server
+
+Place all static files into /home/django/jairosblog/static
+  
+  django@jairosblog:~/jairosblog$ source venv/bin/activate
+  (venv) django@jairosblog:~/jairosblog$ python manage.py collectstatic
+
+Now that you're done you can go get a domain url. He recommends google domains. 
+You also have to tweak /etc/nginx/sites-available/jairosblog and settings.py on vultr server on last time to allow website DNS name to access Django app.
+Goto 7:04 for specifics.
+
+
+========Site #3 - Reddit Clone========
+===Project Setup===
+
+(venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11$ django-admin startproject redditclone
+
+redditclone/redditclone/settings.py
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+
+Apply the migrations right away to see all the auth stuff.
+
+
+  (venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/redditclone$ python manage.py migrate
+  Operations to perform:
+    Apply all migrations: admin, auth, contenttypes, sessions
+  Running migrations:
+    Applying contenttypes.0001_initial... OK
+    Applying auth.0001_initial... OK
+    Applying admin.0001_initial... OK
+    Applying admin.0002_logentry_remove_auto_add... OK
+    Applying contenttypes.0002_remove_content_type_name... OK
+    Applying auth.0002_alter_permission_name_max_length... OK
+    Applying auth.0003_alter_user_email_max_length... OK
+    Applying auth.0004_alter_user_username_opts... OK
+    Applying auth.0005_alter_user_last_login_null... OK
+    Applying auth.0006_require_contenttypes_0002... OK
+    Applying auth.0007_alter_validators_add_error_messages... OK
+    Applying auth.0008_alter_user_username_max_length... OK
+    Applying sessions.0001_initial... OK
+  
+  (venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/redditclone$ python manage.py createsuperuser
+  Username (leave blank to use 'jairomh'): admin (or jairo)
+  Email address: something@something.com
+  Password: admin123 (or jairo123)
+  Password (again):
+  Superuser created successfully.
+
+  (venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/redditclone$ python manage.py startapp account
+
+===Sign Up View===
+
+Complete the html form in accounts/templates/accounts/signup.html
+
+===POST vs. GET===
+
+So that the web browerser url does not show your username and password in plain text after hitting "Sign Up!"
+button you need to do a method POST request.
+
+  accounts/templates/accounts/signup.html
+   <form method="POST" action="{% url 'signup' %}">
+
+This will produce a (403) Forbidden CSRF verfication failed webpage.
+Fix is to add {% csrf_token %}
+
+  accounts/templates/accounts/signup.html
+    <form method="POST" action="{% url 'signup' %}">
+      {% csrf_token %} <<---
+
+How to code an incoming POST request.
+
+  redditclone/accounts/views.py
+    if request.method == 'POST':
+            print("The POST worked.")
+
+  It should produce this.
+
+  [22/May/2018 21:18:52] "GET /signup/ HTTP/1.1" 200 489
+  The POST worked.
+  Internal Server Error: /signup/
+  Traceback (most recent call last):
+    File "/home/jairomh/WORK/django/UltimateBeginner1.11/venv36/lib/python3.6/site-packages/django/core/handlers/exception.py", line 41, in inner
+      response = get_response(request)
+    File "/home/jairomh/WORK/django/UltimateBeginner1.11/venv36/lib/python3.6/site-packages/django/core/handlers/base.py", line 198, in _get_response
+      "returned None instead." % (callback.__module__, view_name)
+  ValueError: The view accounts.views.signup didn't return an HttpResponse object. It returned None instead.
+  [22/May/2018 21:19:00] "POST /signup/ HTTP/1.1" 500 65555]
+
+Look at def signup() and signup.html to see how it uses 'error' key.
+
+===Username and Uniqueness===
+
+If you try to sign up a user that already exists you will get this error.
+
+  "IntegrityError at /signup/
+  UNIQUE constraint failed: auth_user.username"
+
+Add following login code.
+
+  redditclone/accounts/views.py
+    if request.method == 'POST':
+            if request.POST['password1'] == request.POST['password2']:
+                # Will create a user in our DB viewable in admin admin page.
+                # 'username' corresponds to <input type="text" name="username" />
+                # You specify key password because you are breaking order since key email was next in line.
+                try:
+                    user = User.objects.get(username=request.POST['username'])
+                    return render(request, 'accounts/signup.html', {'error': 'Username already exists.'})
+                except User.DoesNotExist:
+                    User.objects.create_user(request.POST['username'], password=request.POST['password1']) 
+                    login(request, user) # Instantly signs user in. Helps prevent logging into admin page as a user without admin creds.
+                    return render(request, 'accounts/signup.html')
+
+===Login View===
 
 
