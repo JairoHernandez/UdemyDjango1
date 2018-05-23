@@ -754,6 +754,43 @@ Add following login code.
                     login(request, user) # Instantly signs user in. Helps prevent logging into admin page as a user without admin creds.
                     return render(request, 'accounts/signup.html')
 
+To find login() method go here:
+https://docs.djangoproject.com/en/1.11/topics/auth/default/#auth-web-requests
+
 ===Login View===
 
+See def loginview(request) in accounts/views.py
+
+===URL Include===
+
+Organize urls based on app name.
+
+redditclone/redditclone/urls.py
+  url(r'^accounts/', include('accounts.urls')),
+
+redditclone/accounts/urls.py
+  # organize urls based on app name
+  # <form method="POST" action="{% url 'accounts:loginview' %}">
+  app_name = 'accounts'
+
+  urlpatterns = [
+    url(r'^signup/', views.signup, name='signup'),
+    url(r'^login/', views.loginview, name='loginview'),
+  ]
+
+Finally change url entries in html files to 
+
+  redditclone/accounts/templates/accounts/login.html
+    <form method="POST" action="{% url 'accounts:loginview' %}">
+  redditclone/accounts/templates/accounts/signup.html
+    <form method="POST" action="{% url 'accounts:signup' %}">
+
+  
+===Posts App===
+
+Create posts app and add it to settings.py INSTALLED_APPS
+
+  (venv36) jairomh@DEV2:~/WORK/django/UltimateBeginner1.11/redditclone$ python manage.py startapp posts
+
+5:33
 

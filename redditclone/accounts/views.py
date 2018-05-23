@@ -19,5 +19,18 @@ def signup(request):
                 return render(request, 'accounts/signup.html')
         else:
             return render(request, 'accounts/signup.html', {'error': 'Passwords didn\'t match.'})
-    else:
+    else: # Load page for the first time.
         return render(request, 'accounts/signup.html')
+
+def loginview(request):
+
+    if request.method == 'POST':
+        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+        if user is not None:
+            login(request, user)
+            # Redirect to a success page.
+            return render(request, 'accounts/login.html', {'error': 'Logged in successfully.'})
+        else:
+            return render(request, 'accounts/login.html', {'error': 'The username and password didn\'t match.'})
+    else: # Load page for the first time.
+        return render(request, 'accounts/login.html')
